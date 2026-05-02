@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Питання та обговорення
+    url: https://github.com/kykyrudza/octane/discussions
+    about: Для загальних питань використовуйте Discussions, а не Issues.
+  - name: Вразливість безпеки
+    url: mailto:illeasmakouz@gmail.com
+    about: Будь ласка, не відкривайте публічний Issue для вразливостей — надішліть листа.
