@@ -1,0 +1,5 @@
+sessions/*
+logs/*
+parcel/*
+cache/*
+!*/.gitkeep

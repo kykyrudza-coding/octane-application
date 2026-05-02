@@ -1,0 +1,31 @@
+*~
+
+# IDE
+.idea/
+.vscode/
+.claude/
+
+# Dependencies
+/vendor/
+node_modules/
+
+# Environment
+.env
+.env.*
+!.example.env
+
+# Compiled assets
+public/assets
+public/storage
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PHP tools
+.php-cs-fixer.cache
+.php_cs.cache
+
+# Logs
+*.log

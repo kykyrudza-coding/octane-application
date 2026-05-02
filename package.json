@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "parcel watch resources/index.html --dist-dir public/assets --cache-dir tmp/parcel",
+    "build": "parcel build resources/index.html --dist-dir public/assets --cache-dir tmp/parcel"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kykyrudza/octane.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kykyrudza/octane/issues"
+  },
+  "homepage": "https://github.com/kykyrudza/octane#readme",
+  "description": "",
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "parcel": "^2.13.3",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17"
+  }
+}

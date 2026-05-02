@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Entry point for the console application.
+ *
+ * This script serves as the entry point for running the console application.
+ * It defines the constant `DATABASE_PATH` to specify the location of the
+ * database files and includes the necessary Composer autoload files.
+ * Finally, it creates an instance of the console application and runs it.
+ *
+ * @package Kernel\Console
+ */
+
+// Define the path for the database files by converting directory separators to forward slashes.
+define("DATABASE_PATH", str_replace(DIRECTORY_SEPARATOR, '/', __DIR__ . '/database'));
+define("APP_ROOT", str_replace(DIRECTORY_SEPARATOR, '/', __DIR__));
+
+// Include Composer's autoloader for dependencies.
+require __DIR__ . '/vendor/autoload.php';
+
+// Create and run the console application.
+$app = new Kernel\Console\App();
+$app->run();
