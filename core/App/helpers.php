@@ -13,15 +13,15 @@ use Kernel\Application\View\View;
  * @param int $code The HTTP status code (e.g., 404 for Not Found).
  * @param string $message The message to display along with the status code.
  *
- * @return Response The generated HTTP response.
+ * @return never
  */
 if (! function_exists('abort')) {
-    function abort(int $code, string $message = ''): Response
+    function abort(int $code, string $message = ''): never
     {
         global $app;
         $response = $app->get('response');
 
-        return $response::abort($code, $message);
+        $response::abort($code, $message);
     }
 }
 
@@ -204,7 +204,7 @@ if (! function_exists('vite')) {
  * @return mixed The configuration value or the default value.
  */
 if (! function_exists('config')) {
-    function config(string $key, $default = null): array
+    function config(string $key, $default = null): mixed
     {
         global $app;
 

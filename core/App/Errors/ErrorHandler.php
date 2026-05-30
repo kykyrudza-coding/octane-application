@@ -6,7 +6,7 @@ use Throwable;
 
 class ErrorHandler
 {
-    private const  FATAL_TYPES = [
+    private const FATAL_TYPES = [
         E_ERROR,
         E_PARSE,
         E_CORE_ERROR,
@@ -14,9 +14,9 @@ class ErrorHandler
         E_USER_ERROR,
     ];
 
-    private const  CODE_CONTEXT_LINES = 6;
+    private const CODE_CONTEXT_LINES = 6;
 
-    private const  ERROR_VIEW = __DIR__ . '/errors/error.php';
+    private const ERROR_VIEW = __DIR__.'/errors/error.php';
 
     private static bool $rendered = false;
 

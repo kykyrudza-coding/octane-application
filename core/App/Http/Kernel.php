@@ -24,9 +24,14 @@ readonly class Kernel
             $router->dispatch($routes, $requestInfo, $this->request, $this->response);
 
             $this->response->send();
-            ob_end_flush();
+            if (ob_get_level() > 0) {
+                ob_end_flush();
+            }
         } catch (Throwable $e) {
-            ob_end_clean();
+            if (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+
             ErrorHandler::handleException($e);
         }
     }
