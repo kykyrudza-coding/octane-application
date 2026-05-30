@@ -2,138 +2,193 @@
 
 namespace Kernel\Application\Errors;
 
-/**
- * Class ErrorHandler
- *
- * A custom error handler that captures and renders detailed information about errors and exceptions.
- * It provides methods for handling exceptions, errors, and shutdown scenarios, and logging them for debugging.
- * Additionally, it renders an error page with the captured details.
- */
+use Throwable;
+
 class ErrorHandler
 {
-    /**
-     * @var string The error message.
-     */
-    private string $errorMessage;
+    private const  FATAL_TYPES = [
+        E_ERROR,
+        E_PARSE,
+        E_CORE_ERROR,
+        E_COMPILE_ERROR,
+        E_USER_ERROR,
+    ];
 
-    /**
-     * @var int The error code.
-     */
-    private int $errorCode;
+    private const  CODE_CONTEXT_LINES = 6;
 
-    /**
-     * @var string The file where the error occurred.
-     */
-    private string $errorFile;
+    private const  ERROR_VIEW = __DIR__ . '/errors/error.php';
 
-    /**
-     * @var int The line where the error occurred.
-     */
-    private int $errorLine;
+    private static bool $rendered = false;
 
-    /**
-     * ErrorHandler constructor.
-     *
-     * Initializes the error handler with the provided error details and renders the error page.
-     *
-     * @param  string  $errorMessage  The error message.
-     * @param  int  $errorCode  The error code.
-     * @param  string  $errorFile  The file where the error occurred.
-     * @param  int  $errorLine  The line where the error occurred.
-     */
-    public function __construct(
-        string $errorMessage,
-        int $errorCode,
-        string $errorFile,
-        int $errorLine
-    ) {
-        $this->errorMessage = $errorMessage;
-        $this->errorCode = $errorCode;
-        $this->errorFile = $errorFile;
-        $this->errorLine = $errorLine;
-
-        $this->renderError();
-    }
-
-    /**
-     * Handles uncaught exceptions.
-     *
-     * Captures the exception details (message, code, file, line) and logs them,
-     * then renders the error using the ErrorHandler class.
-     *
-     * @param  \Throwable  $exception  The uncaught exception to handle.
-     */
-    public static function handleException(\Throwable $exception): void
+    public static function register(): void
     {
-        $errorFile = $exception->getFile();
-        $errorLine = $exception->getLine();
-
-        error_log('Exception occurred in file: '.$errorFile.' on line: '.$errorLine);
-
-        new self($exception->getMessage(), $exception->getCode(), $errorFile, $errorLine);
+        set_exception_handler(self::handleException(...));
+        set_error_handler(self::handleError(...));
+        register_shutdown_function(self::handleShutdown(...));
     }
 
-    /**
-     * Handles PHP errors.
-     *
-     * Captures error details (errno, message, file, line), logs them,
-     * and renders the error using the ErrorHandler class.
-     *
-     * @param  int  $errno  The error number.
-     * @param  string  $errstr  The error message.
-     * @param  string  $errfile  The file where the error occurred.
-     * @param  int  $errline  The line where the error occurred.
-     */
-    public static function handleError(int $errno, string $errstr, string $errfile, int $errline): void
+    public static function handleException(Throwable $exception): void
     {
-        ob_clean();
-
-        $backtrace = debug_backtrace();
-        $errorFile = $backtrace[1]['file'] ?? 'Unknown file';
-        $errorLine = $backtrace[1]['line'] ?? 0;
-
-        error_log("Error occurred in file: $errorFile on line: $errorLine");
-
-        $message = "Error: [$errno] $errstr";
-        new self($message, $errno, $errfile, $errline);
+        self::render(
+            message: $exception->getMessage(),
+            code:    $exception->getCode(),
+            file:    $exception->getFile(),
+            line:    $exception->getLine(),
+            trace:   $exception->getTraceAsString(),
+            type:    $exception::class,
+        );
     }
 
-    /**
-     * Handles fatal errors during script shutdown.
-     *
-     * Captures the last error that caused the shutdown and renders it using the ErrorHandler class.
-     */
+    public static function handleError(int $errno, string $errstr, string $errfile, int $errline): bool
+    {
+        if (! (error_reporting() & $errno)) {
+            return false;
+        }
+
+        self::render(
+            message: $errstr,
+            code:    $errno,
+            file:    $errfile,
+            line:    $errline,
+            trace:   self::formatTrace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)),
+            type:    'PHP Error',
+        );
+
+        return true;
+    }
+
     public static function handleShutdown(): void
     {
+        if (self::$rendered) {
+            return;
+        }
+
         $error = error_get_last();
-        if ($error !== null) {
-            $message = "Fatal Error: [{$error['type']}] {$error['message']}";
-            $errorFile = $error['file'] ?? 'Unknown file';
-            $errorLine = $error['line'] ?? 0;
 
-            error_log('Shutdown error occurred in file: '.$errorFile.' on line: '.$errorLine);
+        if ($error === null || ! in_array($error['type'], self::FATAL_TYPES, true)) {
+            return;
+        }
 
-            $message .= " in $errorFile on line $errorLine";
-            new self($message, $error['type'], $errorFile, $errorLine);
+        self::render(
+            message: $error['message'],
+            code:    $error['type'],
+            file:    $error['file'] ?? 'Unknown file',
+            line:    $error['line'] ?? 0,
+            trace:   '',
+            type:    'Fatal Error',
+        );
+    }
+
+    private static function render(
+        string $message,
+        int    $code,
+        string $file,
+        int    $line,
+        string $trace,
+        string $type,
+    ): void {
+        if (self::$rendered) {
+            exit;
+        }
+
+        self::$rendered = true;
+        self::cleanOutputBuffers();
+
+        http_response_code(500);
+
+        error_log(sprintf('%s [%d]: %s in %s on line %d', $type, $code, $message, $file, $line));
+
+        $debug          = self::isDebug();
+        $codeContext    = self::buildCodeContext($file, $line);
+        $requestSummary = self::requestSummary();
+
+        extract([
+            'debug'          => $debug,
+            'errorType'      => $type,
+            'errorMessage'   => $message,
+            'errorCode'      => $code,
+            'errorFile'      => $file,
+            'errorLine'      => $line,
+            'errorTrace'     => $trace,
+            'codeContext'    => $codeContext,
+            'requestSummary' => $requestSummary,
+        ], EXTR_SKIP);
+
+        include self::ERROR_VIEW;
+
+        exit;
+    }
+
+    private static function isDebug(): bool
+    {
+        $value = $_ENV['APP_DEBUG'] ?? getenv('APP_DEBUG');
+
+        if ($value === false || $value === '') {
+            return false;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOL);
+    }
+
+    private static function cleanOutputBuffers(): void
+    {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
         }
     }
 
-    /**
-     * Renders the error page.
-     *
-     * This method uses the provided error details (message, file, line) to render a user-friendly error page.
-     * It includes an external error view file for displaying the error.
-     */
-    private function renderError(): void
+    private static function buildCodeContext(string $file, int $line): array
     {
-        extract([
-            'errorMessage' => $this->errorMessage,
-            'errorFile' => $this->errorFile,
-            'errorLine' => $this->errorLine,
-        ]);
+        if (! is_file($file) || ! is_readable($file)) {
+            return [];
+        }
 
-        include __DIR__.'/errors/error.php';
+        $lines = file($file, FILE_IGNORE_NEW_LINES);
 
-        exit();
+        if ($lines === false) {
+            return [];
+        }
+
+        $total   = count($lines);
+        $start   = max(1, $line - self::CODE_CONTEXT_LINES);
+        $end     = min($total, $line + self::CODE_CONTEXT_LINES);
+        $context = [];
+
+        for ($current = $start; $current <= $end; $current++) {
+            $context[] = [
+                'number'    => $current,
+                'content'   => $lines[$current - 1] ?? '',
+                'highlight' => $current === $line,
+            ];
+        }
+
+        return $context;
+    }
+
+    private static function requestSummary(): array
+    {
+        return [
+            'method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+            'uri'    => $_SERVER['REQUEST_URI']     ?? '',
+            'host'   => $_SERVER['HTTP_HOST']       ?? '',
+            'ip'     => $_SERVER['REMOTE_ADDR']     ?? '',
+        ];
+    }
+
+    private static function formatTrace(array $trace): string
+    {
+        $lines = [];
+
+        foreach ($trace as $index => $frame) {
+            $file     = $frame['file']     ?? '[internal]';
+            $line     = $frame['line']     ?? 0;
+            $function = ($frame['class']   ?? '')
+                . ($frame['type']    ?? '')
+                . ($frame['function'] ?? '');
+
+            $lines[] = sprintf('#%d %s:%d %s()', $index, $file, $line, $function);
+        }
+
+        return implode(PHP_EOL, $lines);
     }
 }

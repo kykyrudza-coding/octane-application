@@ -2,9 +2,9 @@
 
 namespace Kernel\Application\Http;
 
-use Exception;
 use Kernel\Application\Errors\ErrorHandler;
 use Kernel\Application\Routing\Router;
+use Throwable;
 
 readonly class Kernel
 {
@@ -25,9 +25,9 @@ readonly class Kernel
 
             $this->response->send();
             ob_end_flush();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             ob_end_clean();
-            new ErrorHandler('Internal Server Error', 500, $e->getFile(), $e->getLine());
+            ErrorHandler::handleException($e);
         }
     }
 

@@ -20,7 +20,7 @@ use PDOException;
  * to the database and sets appropriate connection parameters based on the
  * configuration.
  */
-class DataBaseConnect extends PDO
+class DataBaseConnect
 {
     /**
      * @var DataBaseConfigInterface Database configuration object

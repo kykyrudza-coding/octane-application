@@ -17,10 +17,7 @@
         http-equiv="X-UA-Compatible"
         content="ie=edge"
     >
-    <link
-        rel="stylesheet"
-        href="./assets/index.073c376f.css"
-    >
+    <?= vite() ?>
     <title>
         <?= isset($title) ? $title : 'Default Title' ?>
     </title>

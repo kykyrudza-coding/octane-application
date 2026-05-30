@@ -54,6 +54,20 @@ class Response
     {
         http_response_code($this->statusCode);
 
+        if (is_array($this->content) || $this->content instanceof \JsonSerializable) {
+            if (! headers_sent()) {
+                header('Content-Type: application/json');
+            }
+
+            echo json_encode($this->content);
+
+            return $this->content;
+        }
+
+        if (is_scalar($this->content) || $this->content instanceof \Stringable) {
+            echo (string) $this->content;
+        }
+
         return $this->content;
     }
 
@@ -66,12 +80,9 @@ class Response
      * @param  int  $code  The HTTP status code for the abort.
      * @param  string  $message  The optional error message.
      */
-    public static function abort(int $code, string $message = ''): void
+    public static function abort(int $code, string $message = ''): never
     {
-        $response = new self;
-
-        $response->setStatusCode($code);
-        $response->setContent($message);
+        http_response_code($code);
 
         extract([
             'code' => $code,

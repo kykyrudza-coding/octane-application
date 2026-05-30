@@ -152,6 +152,50 @@ if (! function_exists('views_path')) {
 }
 
 /**
+ * Render Vite tags for development or built assets for production.
+ *
+ * @param string $entry The source entry file handled by Vite.
+ */
+if (! function_exists('vite')) {
+    function vite(string $entry = 'resources/js/app.js'): string
+    {
+        $devServerUrl = rtrim((string) env('VITE_DEV_SERVER_URL', 'http://127.0.0.1:5173'), '/');
+
+        if (filter_var(env('VITE_DEV_SERVER', false), FILTER_VALIDATE_BOOL)) {
+            return implode(PHP_EOL, [
+                '<script type="module" src="'.$devServerUrl.'/@vite/client"></script>',
+                '<script type="module" src="'.$devServerUrl.'/'.$entry.'"></script>',
+            ]);
+        }
+
+        $manifestPath = APP_ROOT.'/public/assets/.vite/manifest.json';
+
+        if (! file_exists($manifestPath)) {
+            return '';
+        }
+
+        $manifest = json_decode((string) file_get_contents($manifestPath), true);
+        $asset = $manifest[$entry] ?? null;
+
+        if (! is_array($asset)) {
+            return '';
+        }
+
+        $tags = [];
+
+        foreach ($asset['css'] ?? [] as $cssFile) {
+            $tags[] = '<link rel="stylesheet" href="/assets/'.$cssFile.'">';
+        }
+
+        if (isset($asset['file'])) {
+            $tags[] = '<script type="module" src="/assets/'.$asset['file'].'"></script>';
+        }
+
+        return implode(PHP_EOL, $tags);
+    }
+}
+
+/**
  * Helper function to retrieve configuration settings.
  *
  * @param string $key The key of the configuration setting.

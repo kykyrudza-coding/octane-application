@@ -1,129 +1,346 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Error Occurred</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body class="py-10 bg-gray-950">
+<?php
+$escape = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+?>
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title><?= $debug ? $escape($errorType) : 'Server Error' ?></title>
 
-        <div class="mx-auto px-6 lg:max-w-screen lg:px-8">
-            <div class="grid gap-4 grid-cols-1">
-                <div class="relative col-span-2">
-                    <div class="w-full py-10 px-8 flex items-center">
-                        <div class="w-32 flex items-center justify-end">
-                            <svg class="w-32 h-32" viewBox="0 0 1062 1062" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g filter="url(#filter0_f_1635_1383)">
-                                    <circle cx="531" cy="531" r="337" fill="#FF2121"/>
-                                </g>
-                                <g filter="url(#filter1_f_1635_1383)">
-                                    <circle cx="531" cy="531" r="267" fill="#FF3E3E"/>
-                                </g>
-                                <g filter="url(#filter2_f_1635_1383)">
-                                    <circle cx="531" cy="531" r="191" fill="#FF5F5F"/>
-                                </g>
-                                <path d="M550 392.727L547.273 593.455H515.636L512.909 392.727H550ZM531.455 674.182C524.727 674.182 518.955 671.773 514.136 666.955C509.318 662.136 506.909 656.364 506.909 649.636C506.909 642.909 509.318 637.136 514.136 632.318C518.955 627.5 524.727 625.091 531.455 625.091C538.182 625.091 543.955 627.5 548.773 632.318C553.591 637.136 556 642.909 556 649.636C556 654.091 554.864 658.182 552.591 661.909C550.409 665.636 547.455 668.636 543.727 670.909C540.091 673.091 536 674.182 531.455 674.182Z" fill="white"/>
-                                <defs>
-                                    <filter id="filter0_f_1635_1383" x="0" y="0" width="1062" height="1062" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-                                        <feGaussianBlur stdDeviation="97" result="effect1_foregroundBlur_1635_1383"/>
-                                    </filter>
-                                    <filter id="filter1_f_1635_1383" x="214" y="214" width="634" height="634" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-                                        <feGaussianBlur stdDeviation="25" result="effect1_foregroundBlur_1635_1383"/>
-                                    </filter>
-                                    <filter id="filter2_f_1635_1383" x="300" y="300" width="462" height="462" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-                                        <feGaussianBlur stdDeviation="20" result="effect1_foregroundBlur_1635_1383"/>
-                                    </filter>
-                                </defs>
-                            </svg>
-                        </div>
-                        <div class="w-full ml-10">
-                            <p class="text-4xl font-bold text-white max-lg:text-center">
-                                Unexpected Error
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="relative col-span-2">
-                    <div class="relative bg-gray-900 flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-[calc(2rem+1px)] lg:rounded-[calc(2rem+1px)]">
-                        <div class="px-8 pb-3 pt-8 sm:px-10 sm:pb-0 sm:pt-10">
-                            <p class="mt-2 text-2xl text-white max-lg:text-center">
-                                <?= $errorMessage ?>
-                            </p>
-                            <p class="mt-2 max-w-lg text-xl text-zinc-400 max-lg:text-center">
-                                <?= $errorFile ?> (Line <?= $errorLine ?>)
-                            </p>
-                        </div>
-                        <div class="relative min-h-[50rem] w-full grow">
-                            <div class="absolute bottom-0 left-10 right-0 top-10 overflow-y-scroll overflow-hidden rounded-tl-xl bg-gray-800 shadow-2xl">
-                                <div class="flex ring-1 ring-white/5">
-                                    <div class="border-b border-r border-b-white/20 border-r-white/10 bg-white/5 px-4 py-2 text-white">
-                                        <?= basename($errorFile) ?>
-                                    </div>
-                                </div>
-                                <div class="mx-6 text-white text-md">
-                                    <pre class="whitespace-pre-wrap"><?php
-                                        function displayCodeContext(string $errorFile, int $errorLine): void
-                                        {
-                                            if (!file_exists($errorFile)) {
-                                                echo "<span class='text-red-500'>File not found: " . htmlspecialchars($errorFile, ENT_QUOTES, 'UTF-8') . "</span>";
-                                                return;
-                                            }
+    <style>
+        :root {
+            --bg:        #0a0b0d;
+            --surface:   #111318;
+            --surface2:  #181b21;
+            --border:    rgba(255,255,255,.08);
+            --border-hov:rgba(255,255,255,.15);
+            --text:      #f1f5f9;
+            --muted:     #94a3b8;
+            --muted2:    #64748b;
+            --accent:    #ef4444;
+            --accent-bg: rgba(239, 68, 68, 0.1);
+            --hl-bg:     rgba(239, 68, 68, 0.15);
 
-                                            $fileContents = file($errorFile);
-                                            $lineCount = count($fileContents);
-                                            $startLine = max(0, $errorLine - 15);
-                                            $endLine = min($lineCount - 1, $errorLine + 14);
+            /* Системні шрифти для швидкості та офлайн-роботи */
+            --sans:      system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --mono:      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            --radius:    8px;
+        }
 
-                                            echo "<div class='overflow-x-auto'><table class='table-auto border-collapse w-full'>";
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-                                            foreach (range($startLine, $endLine) as $currentLine) {
-                                                $lineContent = htmlspecialchars($fileContents[$currentLine], ENT_QUOTES, 'UTF-8');
-                                                $lineNumber = str_pad($currentLine + 1, 3, '0', STR_PAD_LEFT);
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
 
-                                                $rowClass = ($currentLine + 1 == $errorLine) ? 'bg-red-400 text-red-600 font-bold' : 'text-gray-500';
-                                                $cellClass = ($currentLine + 1 == $errorLine) ? 'bg-red-300 text-rose-800' : '';
+        /* ── top stripe ── */
+        .stripe {
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+        }
 
-                                                echo sprintf("<tr><td class='%s'>%s</td><td class='%s'>%s</td></tr>",
-                                                    $rowClass, $lineNumber, $cellClass, $lineContent);
-                                            }
+        main {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
 
-                                            echo '</table></div>';
-                                        }
+        /* ── header ── */
+        .header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
 
-                                        if (isset($errorFile, $errorLine)) {
-                                            displayCodeContext($errorFile, $errorLine);
-                                        } else {
-                                            echo "<span class='text-red-500'>Ошибка: отсутствуют входные параметры.</span>";
-                                        }
-                                        ?></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        .status-badge {
+            flex-shrink: 0;
+            padding: 4px 12px;
+            background: var(--accent-bg);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: .02em;
+            margin-top: 4px;
+        }
 
-                </div>
-                <div class="bg-gray-900 p-6 mt-6 rounded-lg text-white">
-                    <h2 class="text-xl font-bold mb-4">Request Data</h2>
-                    <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
-                        <?php print_r(request()); ?>
-                    </pre>
-                    <h2 class="text-xl font-bold mt-6 mb-4">Server Data</h2>
-                    <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
-                        <?php print_r($_SERVER); ?>
-                    </pre>
-                    <h2 class="text-xl font-bold mt-6 mb-4">Headers</h2>
-                    <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
-                        <?php print_r(getallheaders()); ?>
-                    </pre>
-                </div>
+        .header-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.3;
+            letter-spacing: -.02em;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+
+        .header-text .subtitle {
+            font-family: var(--mono);
+            font-size: 13.5px;
+            color: var(--muted);
+            word-break: break-all;
+        }
+
+        /* ── panels ── */
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--muted);
+            background: var(--surface2);
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-head .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--muted2);
+            flex-shrink: 0;
+        }
+
+        .btn-copy {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: var(--sans);
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        /* ── request ── */
+        .request-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        }
+
+        .req-cell {
+            padding: 16px 20px;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .req-cell:last-child { border-right: none; }
+
+        .req-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--muted2);
+            margin-bottom: 6px;
+        }
+
+        .req-val {
+            font-family: var(--mono);
+            font-size: 13.5px;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ── code context ── */
+        .code-wrap {
+            overflow-x: auto;
+            padding: 12px 0;
+        }
+
+        .code-line {
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            font-family: var(--mono);
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+
+        .code-line.hl {
+            background: var(--hl-bg);
+            font-weight: 500;
+        }
+
+        .ln {
+            padding: 2px 16px 2px 0;
+            text-align: right;
+            color: var(--muted2);
+            user-select: none;
+            border-right: 2px solid transparent;
+        }
+
+        .code-line.hl .ln {
+            color: var(--accent);
+            border-right-color: var(--accent);
+        }
+
+        .lc {
+            padding: 2px 20px 2px 20px;
+            white-space: pre;
+            color: var(--text);
+        }
+
+        .code-line.hl .lc { color: #ffffff; }
+
+        /* ── trace ── */
+        .trace-body {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--muted);
+            padding: 20px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* ── production ── */
+        .prod-wrap {
+            padding: 24px;
+            text-align: center;
+        }
+
+        .prod-wrap p {
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        @media (max-width: 640px) {
+            main { padding: 32px 16px 56px; }
+            .header { flex-direction: column; gap: 12px; }
+            .request-grid { grid-template-columns: 1fr; }
+            .req-cell { border-right: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="stripe"></div>
+<main>
+    <div class="header">
+        <div class="status-badge"><?= $debug ? $escape($errorType) : '500' ?></div>
+        <div class="header-text">
+            <h1><?= $debug ? $escape($errorMessage) : 'Внутрішня помилка сервера' ?></h1>
+            <?php if ($debug): ?>
+                <div class="subtitle"><?= $escape($errorFile) ?>:<?= $escape($errorLine) ?></div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <?php if (! $debug): ?>
+        <div class="panel">
+            <div class="prod-wrap">
+                <p>Сталася помилка під час обробки вашого запиту. Будь ласка, спробуйте пізніше.</p>
             </div>
         </div>
-    </body>
+    <?php endif; ?>
+
+    <div class="panel">
+        <div class="panel-head">
+            <div class="panel-title"><div class="dot"></div>Request Detail</div>
+        </div>
+        <div class="request-grid">
+            <div class="req-cell">
+                <div class="req-label">Method</div>
+                <div class="req-val"><?= $escape($requestSummary['method']) ?></div>
+            </div>
+            <div class="req-cell">
+                <div class="req-label">URI</div>
+                <div class="req-val" title="<?= $escape($requestSummary['uri']) ?>"><?= $escape($requestSummary['uri']) ?></div>
+            </div>
+            <div class="req-cell">
+                <div class="req-label">Host</div>
+                <div class="req-val"><?= $escape($requestSummary['host']) ?></div>
+            </div>
+            <div class="req-cell">
+                <div class="req-label">Client IP</div>
+                <div class="req-val"><?= $escape($requestSummary['ip']) ?></div>
+            </div>
+        </div>
+    </div>
+
+    <?php if ($debug && $codeContext !== []): ?>
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-title">
+                    <div class="dot" style="background:var(--accent)"></div>
+                    <?= $escape(basename($errorFile)) ?>
+                </div>
+            </div>
+            <div class="code-wrap">
+                <?php foreach ($codeContext as $line): ?>
+                    <div class="code-line<?= $line['highlight'] ? ' hl' : '' ?>">
+                        <div class="ln"><?= $escape($line['number']) ?></div>
+                        <div class="lc"><?= $escape($line['content']) ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($debug && $errorTrace !== ''): ?>
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-title"><div class="dot"></div>Stack Trace</div>
+                <button class="btn-copy" onclick="copyTrace(this)">Copy</button>
+            </div>
+            <div class="trace-body" id="stack-trace"><?= $escape($errorTrace) ?></div>
+        </div>
+    <?php endif; ?>
+</main>
+
+<script>
+    function copyTrace(btn) {
+        const traceText = document.getElementById('stack-trace').innerText;
+        navigator.clipboard.writeText(traceText).then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = 'Copied!';
+            btn.style.color = '#fff';
+            btn.style.borderColor = 'var(--accent)';
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+</script>
+</body>
 </html>

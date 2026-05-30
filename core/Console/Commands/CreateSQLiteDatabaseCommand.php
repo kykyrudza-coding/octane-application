@@ -19,7 +19,7 @@ class CreateSQLiteDatabaseCommand extends Command
     /**
      * The name of the command.
      */
-    protected static $defaultName = 'app:database';
+    protected static string $defaultName = 'app:database';
 
     /**
      * CreateSQLiteDatabaseCommand constructor.

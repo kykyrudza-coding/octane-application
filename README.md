@@ -33,7 +33,7 @@ cp .example.env .env
 
 ```bash
 php octane serve          # PHP вбудований сервер
-npm run dev               # Parcel (CSS/JS)
+npm run dev               # Vite dev server (CSS/JS)
 ```
 
 Збірка для production:

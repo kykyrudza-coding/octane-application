@@ -116,9 +116,7 @@ class Application extends Container
         $debug = Env::get('APP_DEBUG') === 'true';
 
         if ($debug) {
-            set_exception_handler([ErrorHandler::class, 'handleException']);
-            set_error_handler([ErrorHandler::class, 'handleError']);
-            register_shutdown_function([ErrorHandler::class, 'handleShutdown']);
+            ErrorHandler::register();
         } else {
             $this->setProductionErrorHandlers();
         }
@@ -132,10 +130,16 @@ class Application extends Container
     private function setProductionErrorHandlers(): void
     {
         set_exception_handler(fn () => abort(500, 'Internal Server Error'));
-        set_error_handler(fn () => abort(500, 'Internal Server Error'));
+        set_error_handler(function (int $errno): bool {
+            if (! (error_reporting() & $errno)) {
+                return false;
+            }
+
+            abort(500, 'Internal Server Error');
+        });
         register_shutdown_function(function () {
             $error = error_get_last();
-            if ($error !== null) {
+            if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
                 abort(500, 'Internal Server Error');
             }
         });
