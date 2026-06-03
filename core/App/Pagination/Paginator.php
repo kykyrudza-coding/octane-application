@@ -36,6 +36,10 @@ class Paginator
         private readonly int $perPage,
         int $currentPage = 1
     ) {
+        if ($this->perPage < 1) {
+            throw new \InvalidArgumentException('Items per page must be greater than zero.');
+        }
+
         $this->totalItems = count($this->items->toArray());
         $this->totalPages = max(1, (int) ceil($this->totalItems / $this->perPage));
         $this->currentPage = max(1, min($currentPage, $this->totalPages));

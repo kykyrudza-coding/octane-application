@@ -46,11 +46,15 @@ class Env
                 continue;
             }
 
+            if (! str_contains($line, '=')) {
+                continue;
+            }
+
             [$key, $value] = array_map('trim', explode('=', $line, 2));
 
             $value = trim($value, "\"'");
 
-            if (! array_key_exists($key, $_ENV) && ! getenv($key)) {
+            if (! array_key_exists($key, $_ENV) && getenv($key) === false) {
                 putenv("{$key}={$value}");
                 $_ENV[$key] = $value;
                 $_SERVER[$key] = $value;
@@ -72,6 +76,12 @@ class Env
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        return $_ENV[$key] ?? getenv($key) ?? $default;
+        if (array_key_exists($key, $_ENV)) {
+            return $_ENV[$key];
+        }
+
+        $value = getenv($key);
+
+        return $value === false ? $default : $value;
     }
 }

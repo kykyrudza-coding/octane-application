@@ -21,14 +21,14 @@ class Redirect
      *
      * @throws RuntimeException If headers have already been sent, a RuntimeException is thrown.
      */
-    public static function redirect(string $url): void
+    public static function redirect(string $url): never
     {
         session_write_close();
         if (! headers_sent()) {
             header('Location: '.$url, true, 302);
             exit;
-        } else {
-            throw new RuntimeException('Headers already sent. Cannot redirect to: '.$url);
         }
+
+        throw new RuntimeException('Headers already sent. Cannot redirect to: '.$url);
     }
 }

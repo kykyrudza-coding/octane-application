@@ -133,7 +133,7 @@ if (! function_exists('storage_path')) {
 if (! function_exists('app_path')) {
     function app_path(string $path): string
     {
-        return APP_ROOT.$path;
+        return APP_ROOT.'/'.ltrim($path, '/\\');
     }
 }
 
@@ -262,14 +262,14 @@ if (! function_exists('route')) {
  *
  * @param string $uri The URI to redirect to.
  *
- * @return Response The response object for the redirect.
+ * @return never
  */
 if (! function_exists('redirect')) {
-    function redirect(string $uri): Response
+    function redirect(string $uri): never
     {
         global $app;
 
-        return $app->get('redirect')->redirect($uri);
+        $app->get('redirect')->redirect($uri);
     }
 }
 
