@@ -1,0 +1,11 @@
+{
+  "ui/js/app.js": {
+    "file": "assets/app-Cflu_pBx.js",
+    "name": "app",
+    "src": "ui/js/app.js",
+    "isEntry": true,
+    "css": [
+      "assets/app-C2ARjNEV.css"
+    ]
+  }
+}

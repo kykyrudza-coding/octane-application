@@ -1,23 +1,12 @@
 <?php
 
-use App\Http\Controllers\HomeController;
-use App\Http\Middlewares\AdminMiddleware;
-use App\Http\Middlewares\UserMiddleware;
-use Kernel\Application\Routing\Route;
+//use Horizon\Routing\Route;
+//
+//Route::get('/', function () {
+//    return view('welcome');
+//});
 
-return [
+use Horizon\Support\Facades\Route;
 
-    Route::get('/', [HomeController::class, 'index'])
-        ->middleware([
-            UserMiddleware::class,
-            AdminMiddleware::class,
-        ])
-        ->name('home'),
-
-    Route::get('/test/{name}', [HomeController::class, 'test'])->name('test'),
-
-    Route::get('/get', [HomeController::class, 'get']),
-
-    Route::get('/test-validation', [HomeController::class, 'testValidation'])->name('test-validation'),
-    Route::post('/test-validation', [HomeController::class, 'storeValidation'])->name('test.store'),
-];
+Route::get('/', fn () => view('welcome'));
+Route::get('/test', fn () => 'test');
