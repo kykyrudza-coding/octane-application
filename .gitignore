@@ -9,10 +9,20 @@
 /vendor/
 node_modules/
 
+#db
+db/*.sqlite
+db/*.sqlite-journal
+
 # Environment
 .env
-.env.*
-!.example.env
+.env.development
+.env.production
+.env.local
+.env.testing
+!.env.example.development
+!.env.example.production
+!.env.example.local
+!.env.example.testing
 
 # Compiled assets
 public/assets

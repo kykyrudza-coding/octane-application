@@ -8,7 +8,8 @@
     }
   ],
   "require": {
-    "octane/framework": "@dev"
+    "octane/framework": "@dev",
+    "ext-pdo": "*"
   },
   "require-dev": {
     "laravel/pint": "^1.19",
