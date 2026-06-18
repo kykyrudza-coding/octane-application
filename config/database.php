@@ -101,17 +101,4 @@ return [
         'enabled'        => (bool) env('DB_QUERY_LOG', false),
         'slow_threshold' => (int) env('DB_QUERY_LOG_SLOW_MS', 100),
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Metadata Cache
-    |--------------------------------------------------------------------------
-    |
-    | Reserved for schema and database metadata caching. This avoids repeated
-    | metadata lookups once the database layer starts using introspection.
-    |
-    */
-    'metadata_cache' => [
-        'enabled' => (bool) env('DB_METADATA_CACHE', true),
-    ],
 ];

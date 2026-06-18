@@ -3,39 +3,23 @@
 declare(strict_types=1);
 
 use Horizon\Arch\Application;
-use Horizon\Http\Collection\MiddlewareCollection;
 
 return Application::configure(basePath: dirname(__DIR__))
-    ->withPaths(function (Application $app) {
-        //
-    })
-    ->withProviders(
-        providers: APP_ROOT . '/boot/providers.php'
-    )
-    ->withRouting(
-        web: APP_ROOT . '/routes/web.php'
-    )
-    ->withMiddleware(function (MiddlewareCollection $middleware) {
-        //
-    })
-    ->withExceptions(function ($exceptions) {
-        //
-    })
     ->withEnvironment(function (Application $app) {
         $app->environmentFile(
-            APP_ROOT . '/.env'
+            APP_ROOT.'/'.env('APP_ENV_FILE', '.env')
         )
             ->developmentEnvironmentFile(
-                APP_ROOT . '/.env.development'
+                APP_ROOT.'/'.env('APP_ENV_DEVELOPMENT_FILE', '.env.development')
             )
             ->localEnvironmentFile(
-                APP_ROOT . '/.env.local'
+                APP_ROOT.'/'.env('APP_ENV_LOCAL_FILE', '.env.local')
             )
             ->productionEnvironmentFile(
-                APP_ROOT . '/.env.production'
+                APP_ROOT.'/'.env('APP_ENV_PRODUCTION_FILE', '.env.production')
             )
             ->testingEnvironmentFile(
-                APP_ROOT . '/.env.testing'
+                APP_ROOT.'/'.env('APP_ENV_TESTING_FILE', '.env.testing')
             );
     })
     ->create();

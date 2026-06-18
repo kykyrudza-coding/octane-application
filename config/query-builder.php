@@ -17,30 +17,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Fetch Mode
-    |--------------------------------------------------------------------------
-    |
-    | Controls how PDO returns rows before the framework wraps them into
-    | QueryBuilder result objects.
-    |
-    */
-    'fetch_mode' => PDO::FETCH_ASSOC,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pagination
-    |--------------------------------------------------------------------------
-    |
-    | Default pagination values used by QueryBuilder pagination helpers when
-    | the caller does not provide an explicit page size.
-    |
-    */
-    'pagination' => [
-        'per_page' => 15,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Debugging
     |--------------------------------------------------------------------------
     |
@@ -49,6 +25,6 @@ return [
     |
     */
     'debug' => [
-        'log_queries' => env('QUERY_LOG', false),
+        'log_queries' => (bool) env('QUERY_LOG', false),
     ],
 ];

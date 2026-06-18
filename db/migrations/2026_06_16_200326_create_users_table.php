@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Horizon\Contracts\Database\Migrations\Migratable;
-use Horizon\Database\Facades\Migration;
 use Horizon\Database\Migrations\Column;
+use Horizon\Support\Facades\Migration;
 
 return new class implements Migratable
 {
