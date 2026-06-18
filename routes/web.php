@@ -3,5 +3,5 @@
 use Horizon\Support\Facades\Route;
 
 Route::get('/', function () {
-    dd(app());
+    return view('welcome');
 });
