@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace App\ORM\User;
 
-use App\ORM\User\Scopes\SoftDeleteScope;
+use App\ORM\Post\Post;
+use Horizon\Halcyon\Model\Attributes\Table;
+use Horizon\Halcyon\Model\Model;
+use Horizon\Halcyon\Model\Traits\HasSoftDeletes;
+use Horizon\Halcyon\Model\Traits\HasTimestamps;
+use Horizon\Halcyon\Relations\HasMany;
+use Horizon\Halcyon\Relations\Relation;
 
 #[Table('users')]
 class User extends Model
@@ -17,15 +23,6 @@ class User extends Model
     public string $email;
     public string $password;
 
-    #[Column('created_at')]
-    public CarbonTimestamp $createdAt;
-
-    #[Column('updated_at')]
-    public CarbonTimestamp $updatedAt;
-
-    #[Column('deleted_at')]
-    public ?CarbonTimestamp $deletedAt = null;
-
     protected static function hidden(): array
     {
         return [
@@ -37,16 +34,7 @@ class User extends Model
     {
         return [
             'id',
-            'createdAt',
-            'updatedAt',
-            'deletedAt',
-        ];
-    }
-
-    protected static function casts(): array
-    {
-        return [
-            'password' => HashPasswordCast::class,
+            'password'
         ];
     }
 
@@ -56,20 +44,7 @@ class User extends Model
             related: Post::class,
             foreignKey: 'user_id',
             localKey: 'id',
+            name: 'posts',
         );
-    }
-
-    protected static function observers(): array
-    {
-        return [
-            UserObserver::class,
-        ];
-    }
-
-    protected static function scopes(): array
-    {
-        return [
-            SoftDeleteScope::class,
-        ];
     }
 }
